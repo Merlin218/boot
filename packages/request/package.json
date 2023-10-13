@@ -1,5 +1,5 @@
 {
-  "name": "@px/request",
+  "name": "px-request",
   "version": "0.0.1",
   "description": "a request library based on axios",
   "author": "Merlin218",

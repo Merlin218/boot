@@ -1,11 +1,10 @@
 import React, { Fragment } from 'react';
 import type { RouteObject } from 'react-router-dom';
-import { createBrowserRouter, createHashRouter, RouterProvider } from 'react-router-dom';
+import { BrowserRouter, HashRouter, useRoutes } from 'react-router-dom';
 import type { Root } from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
 
 interface ReactRouterAppProps {
-  routerType: 'hash' | 'history';
   routes: RouteObject[];
 }
 
@@ -47,16 +46,15 @@ function NotFound() {
   return <div>not found</div>;
 }
 
-function ReactRouterApp({ routerType, routes = [] }: ReactRouterAppProps) {
-  const router = routerType === 'hash' ? createHashRouter(routes) : createBrowserRouter(routes);
-
+function ReactRouterApp({ routes = [] }: ReactRouterAppProps) {
   if (!routes.find((route) => !route.path)) {
     // 如果用户没有定义 404 路由，则自动添加一个
     routes.push({
+      path: '*',
       element: <NotFound />,
     });
   }
-  return <RouterProvider router={router} />;
+  return useRoutes(routes);
 }
 
 function AppContainer({ children: childrenProp, providers = [] }: AppContainerProps) {
@@ -78,7 +76,12 @@ function runReactApp(config: RunAppConfig, root: Root) {
   if (routes) {
     // react router app
     const routerType = config.router?.type ?? 'history';
-    element = <ReactRouterApp routes={routes} routerType={routerType} />;
+    const Router = routerType === 'history' ? BrowserRouter : HashRouter;
+    element = (
+      <Router>
+        <ReactRouterApp routes={routes} />
+      </Router>
+    );
   } else {
     // single entry app
     const SingleEntry = config.singleEntry || 'div';

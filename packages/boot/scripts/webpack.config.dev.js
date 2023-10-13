@@ -9,5 +9,5 @@ module.exports = getWebpackConfig(
       port: 9001,
     },
   },
-  {}
+  {},
 );

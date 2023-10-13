@@ -17,6 +17,16 @@ export interface CollectorProps {
   children?: (props: CollectorRenderProps) => React.ReactNode;
 }
 
+const renderProps = (ComponentOrFunction: any, props: Record<string, any>) => {
+  if (ComponentOrFunction.propTypes || ComponentOrFunction.prototype?.render) {
+    return <ComponentOrFunction {...props} />;
+  }
+  return ComponentOrFunction({
+    ...(ComponentOrFunction.defaultProps || {}),
+    ...props,
+  });
+};
+
 // TODO: 支持同步 value 以外的状态, setValue 完全交给外部来做，内部只实例化空间
 export const Collector = view(
   ({ id, model, defaultValue, onValueChange, render, children }: CollectorProps) => {
@@ -32,7 +42,7 @@ export const Collector = view(
           globalTango.clearStoreValue(storePath);
         }
       };
-    }, [id]);
+    }, [id, defaultValue]);
 
     const valuePath = model || ['currentPage', id, 'value'].join('.');
     const value = globalTango.getStoreValue(valuePath);
@@ -49,13 +59,3 @@ export const Collector = view(
     });
   },
 );
-
-const renderProps = (ComponentOrFunction: any, props: Record<string, any>) => {
-  if (ComponentOrFunction.propTypes || ComponentOrFunction.prototype.render) {
-    return <ComponentOrFunction {...props} />;
-  }
-  return ComponentOrFunction({
-    ...(ComponentOrFunction.defaultProps || {}),
-    ...props,
-  });
-};

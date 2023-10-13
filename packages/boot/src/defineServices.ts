@@ -1,4 +1,5 @@
-import { createServices, RequestConfig } from '@music163/request';
+import type { RequestConfig } from '@music163/request';
+import { createServices } from '@music163/request';
 import globalTango from './global';
 
 interface IDefineServicesBaseConfig extends RequestConfig {

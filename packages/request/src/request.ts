@@ -35,7 +35,7 @@ function createInstance(instanceConfig?: AxiosRequestConfig) {
   // response 拦截器
   instance.interceptors.response.use(
     (response) => {
-      let data = response.data;
+      let { data } = response;
       const { formatter } = response.config as RequestConfig;
       if (formatter) {
         data = formatter(data);

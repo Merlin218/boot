@@ -3,6 +3,15 @@ import globalTango from './global';
 
 // export const globalStore = store({});
 
+function bind(object: Record<string, any>) {
+  Object.keys(object).forEach((key) => {
+    if (typeof object[key] === 'function') {
+      object[key] = object[key].bind(object);
+    }
+  });
+  return object;
+}
+
 /**
  * 创建 Store 实例
  * @param object 定义的状态熟悉和方法
@@ -18,13 +27,4 @@ export function defineStore(object: any, namespace: string) {
   const ret = bind(store(object));
   globalTango.registerStore(namespace, ret);
   return ret;
-}
-
-function bind(object: any) {
-  Object.keys(object).forEach((key) => {
-    if (typeof object[key] === 'function') {
-      object[key] = object[key].bind(object);
-    }
-  });
-  return object;
 }

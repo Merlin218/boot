@@ -44,7 +44,7 @@ module.exports = {
     'react-dom': 'ReactDOM',
     moment: 'moment',
     'styled-components': 'styled',
-    '@music163/tango-boot': 'TangoBoot',
+    '@music163/tango-boot': '```TangoBoot```',
     antd: 'antd',
   },
   plugins: [

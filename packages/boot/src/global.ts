@@ -2,26 +2,29 @@ import { store } from '@risingstack/react-easy-state';
 
 type StoreType = ReturnType<typeof store>;
 
-const globalTango = {
-  config: {},
-  services: {},
-  stores: {
+class Tango {
+  config = {};
+
+  services = {};
+
+  stores = {
     currentPage: store({}),
-  },
-  refs: {},
+  };
+
+  refs = {};
 
   getStore(name: string): StoreType {
-    return globalTango.stores[name];
-  },
+    return this.stores[name];
+  }
 
   getStoreValue(path: string) {
     if (!path) {
-      return;
+      return undefined;
     }
 
     const keys = path.split('.');
-    let value = globalTango.stores;
-    for (let i = 0; i < keys.length; i++) {
+    let value = this.stores;
+    for (let i = 0; i < keys.length; i += 1) {
       if (value) {
         value = value[keys[i]];
       } else {
@@ -29,42 +32,42 @@ const globalTango = {
       }
     }
     return value;
-  },
+  }
 
   setStoreValue(path: string, value: any) {
     const keys = path.split('.');
     const storeName = keys[0];
-    const subStore = globalTango.stores[storeName];
+    const subStore = this.stores[storeName];
     if (!subStore) {
-      globalTango.stores[storeName] = {};
+      this.stores[storeName] = {};
     }
-    let context = globalTango.stores[storeName];
-    for (let i = 1; i < keys.length - 1; i++) {
+    let context = this.stores[storeName];
+    for (let i = 1; i < keys.length - 1; i += 1) {
       context = context[keys[i]] || {};
     }
     context[keys[keys.length - 1]] = value;
-  },
+  }
 
   clearStoreValue(path: string) {
-    globalTango.setStoreValue(path, undefined);
-  },
+    this.setStoreValue(path, undefined);
+  }
 
   registerStore(name: string, storeInstance: StoreType) {
-    if (!globalTango.getStore(name)) {
-      globalTango.stores[name] = storeInstance;
+    if (!this.getStore(name)) {
+      this.stores[name] = storeInstance;
     }
-  },
+  }
 
   registerServices(services: any, namespace?: string) {
     if (namespace) {
-      globalTango.services[namespace] = services;
+      this.services[namespace] = services;
     } else {
-      globalTango.services = {
-        ...globalTango.services,
+      this.services = {
+        ...this.services,
         ...services,
       };
     }
-  },
-};
+  }
+}
 
-export default globalTango;
+export default new Tango();

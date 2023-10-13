@@ -11,7 +11,7 @@ export function createService(baseConfig: RequestConfig) {
       ...baseConfig,
     };
     try {
-      const resp = await request[method](url, payload, restConfig);
+      const resp = await request[method.toLowerCase()](url, payload, restConfig);
       return resp;
     } catch (err) {
       // TODO: handle error

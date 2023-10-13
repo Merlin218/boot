@@ -1,8 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Router } from 'react-router';
-import { RouteConfig, renderRoutes } from 'react-router-config';
-import { History, createBrowserHistory, createHashHistory } from 'history';
+import React, { Fragment } from 'react';
+import type { RouteObject } from 'react-router-dom';
+import { createBrowserRouter, createHashRouter, RouterProvider } from 'react-router-dom';
+import type { Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
+
+interface ReactRouterAppProps {
+  routerType: 'hash' | 'history';
+  routes: RouteObject[];
+}
+
+interface AppContainerProps {
+  providers?: React.ReactElement[];
+  children: React.ReactNode;
+}
 
 export interface RunAppConfig {
   /**
@@ -19,13 +29,13 @@ export interface RunAppConfig {
   /**
    * 多页应用路由配置, router.config 的快捷写法
    */
-  routes: RouteConfig[];
+  routes: RouteObject[];
   /**
    * 路由配置
    */
   router?: {
-    config: RouteConfig[];
-    type?: 'browser' | 'hash';
+    config: RouteObject[];
+    type?: 'history' | 'hash';
   };
   /**
    * 根组件的父容器设置，传入的组件将一次作为应用根节点的父级组件
@@ -33,57 +43,20 @@ export interface RunAppConfig {
   providers?: AppContainerProps['providers'];
 }
 
-export function runApp(config: RunAppConfig) {
-  if ((window as any).__POWERED_BY_QIANKUN__ && config.boot.qiankun) {
-    runQiankunApp(config);
-  } else {
-    runReactApp(config);
+function NotFound() {
+  return <div>not found</div>;
+}
+
+function ReactRouterApp({ routerType, routes = [] }: ReactRouterAppProps) {
+  const router = routerType === 'hash' ? createHashRouter(routes) : createBrowserRouter(routes);
+
+  if (!routes.find((route) => !route.path)) {
+    // 如果用户没有定义 404 路由，则自动添加一个
+    routes.push({
+      element: <NotFound />,
+    });
   }
-}
-
-function runReactApp(config: RunAppConfig) {
-  let element;
-  const routes = config.router?.config ?? config.routes;
-  if (routes) {
-    // react router app
-    const routerType = config.router?.type ?? 'hash';
-    const history = routerType === 'hash' ? createBrowserHistory() : createHashHistory();
-    element = <ReactRouterApp history={history} routes={routes} />;
-  } else {
-    // single entry app
-    const SingleEntry = config.singleEntry || 'div';
-    element = <SingleEntry />;
-  }
-  // eslint-disable-next-line react/no-deprecated
-  ReactDOM.render(
-    <AppContainer providers={config.providers}>{element}</AppContainer>,
-    config.boot.mountElement,
-  );
-}
-
-function runQiankunApp(config: RunAppConfig) {
-  // FIXME: 需要支持从外层传入 mountId
-  const mountId = '#root';
-  return {
-    bootstrap() {
-      return Promise.resolve({});
-    },
-
-    mount() {
-      runReactApp(config);
-    },
-
-    unmount(props: any) {
-      const target = props.container ?? document;
-      // eslint-disable-next-line react/no-deprecated
-      ReactDOM.unmountComponentAtNode(target.querySelector(mountId));
-    },
-  };
-}
-
-interface AppContainerProps {
-  providers?: React.ReactElement[];
-  children: React.ReactNode;
+  return <RouterProvider router={router} />;
 }
 
 function AppContainer({ children: childrenProp, providers = [] }: AppContainerProps) {
@@ -96,24 +69,48 @@ function AppContainer({ children: childrenProp, providers = [] }: AppContainerPr
       return prev;
     }, childrenProp);
   }
-  return <>{children}</>;
+  return children;
 }
 
-interface ReactRouterAppProps {
-  history: History;
-  routes: RouteConfig[];
-}
-
-function ReactRouterApp({ history, routes = [] }: ReactRouterAppProps) {
-  if (!routes.find((route) => !route.path)) {
-    // 如果用户没有定义 404 路由，则自动添加一个
-    routes.push({
-      component: NotFound,
-    });
+function runReactApp(config: RunAppConfig, root: Root) {
+  let element;
+  const routes = config.router?.config ?? config.routes;
+  if (routes) {
+    // react router app
+    const routerType = config.router?.type ?? 'history';
+    element = <ReactRouterApp routes={routes} routerType={routerType} />;
+  } else {
+    // single entry app
+    const SingleEntry = config.singleEntry || 'div';
+    element = <SingleEntry />;
   }
-  return <Router history={history}>{renderRoutes(routes)}</Router>;
+  root.render(<AppContainer providers={config.providers}>{element}</AppContainer>);
 }
 
-function NotFound() {
-  return <div>not found</div>;
+function runQiankunApp(config: RunAppConfig, root: Root) {
+  // FIXME: 需要支持从外层传入 mountId
+  const mountId = '#root';
+  return {
+    bootstrap() {
+      return Promise.resolve({});
+    },
+
+    mount() {
+      runReactApp(config, root);
+    },
+
+    unmount() {
+      root.unmount();
+    },
+  };
+}
+
+export function runApp(config: RunAppConfig) {
+  const root = createRoot(config.boot.mountElement);
+
+  if ((window as any).__POWERED_BY_QIANKUN__ && config.boot.qiankun) {
+    runQiankunApp(config, root);
+  } else {
+    runReactApp(config, root);
+  }
 }

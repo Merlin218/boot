@@ -1,5 +1,10 @@
 {
-  "extends": ["eslint-config-ali/typescript/react"],
+  "extends": [
+    "@feb/eslint-config-base",
+    "@feb/eslint-config-base/typescript",
+    "@feb/eslint-config-base/react",
+    "@feb/eslint-config-base/prettier"
+  ],
   "ignorePatterns": [
     "**/dist/**/*",
     "**/lib/**/*",

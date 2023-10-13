@@ -44,5 +44,5 @@
     "serve": "webpack serve --config ./scripts/webpack.config.dev.js"
   },
   "types": "lib/esm/index.d.ts",
-  "version": "0.0.1"
+  "version": "0.0.2"
 }

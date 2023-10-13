@@ -1,9 +1,9 @@
 {
   "name": "@px/request",
-  "version": "0.1.2",
+  "version": "0.0.1",
   "description": "a request library based on axios",
-  "author": "wwsun <ww.sww@outlook.com>",
-  "homepage": "https://github.com/music163/tango-boot#readme",
+  "author": "Merlin218",
+  "homepage": "https://github.com/Merlin218/boot#readme",
   "license": "MIT",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
@@ -21,10 +21,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/music163/tango-boot.git"
+    "url": "git+https://github.com/Merlin218/boot.git"
   },
   "bugs": {
-    "url": "https://github.com/music163/tango-boot/issues"
+    "url": "https://github.com/Merlin218/boot/issues"
   },
   "dependencies": {
     "axios": "^1.4.0"
